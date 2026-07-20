@@ -24,7 +24,7 @@ index 7c363a6..578f013 100644
  	   ucontext.h sys/ucontext.h				      \
  	   alloca.h fmtmsg.h						      \
 -	   bits/stdlib-bsearch.h sys/random.h bits/stdint-intn.h	      \
-+	   bits/stdlib-bsearch.h bits/stdint-intn.h	      \
++	   bits/stdlib-bsearch.h bits/stdint-intn.h		      \
  	   bits/stdint-uintn.h
  
  routines	:=							      \
@@ -33,20 +33,11 @@ index 7c363a6..578f013 100644
  	   drand48_r erand48_r lrand48_r nrand48_r mrand48_r jrand48_r	      \
  	   srand48_r seed48_r lcong48_r				      \
 -	   drand48-iter getrandom getentropy				      \
-+	   drand48-iter 			      \
++	   drand48-iter						      \
  	   strfromf strfromd strfroml				      \
  	   strtol strtoul strtoll strtoull				      \
  	   strtol_l strtoul_l strtoll_l strtoull_l			      \
-@@ -80,7 +80,7 @@ tests		:= tst-strtol tst-strtod testmb testrand testsort testdiv   \
- 		   tst-strtol-locale tst-strtod-nan-locale tst-strfmon_l    \
- 		   tst-quick_exit tst-thread-quick_exit tst-width	    \
- 		   tst-width-stdint tst-strfrom tst-strfrom-locale	    \
--		   tst-getrandom tst-atexit tst-at_quick_exit 		    \
-+		   tst-atexit tst-at_quick_exit 		    \
- 		   tst-cxa_atexit tst-on_exit test-atexit-race 		    \
- 		   test-at_quick_exit-race test-cxa_atexit-race             \
- 		   test-on_exit-race test-dlclose-exit-race 		    \
-diff --git a/stdlib/Versions b/stdlib/Versions b/stdlib/Versions
+diff --git a/stdlib/Versions b/stdlib/Versions
 index a2dfa32..f79b457 100644
 --- a/stdlib/Versions
 +++ b/stdlib/Versions
@@ -475,173 +466,6 @@ index 044ec10..845a24b 100644
 --- a/sysdeps/unix/sysv/linux/arm/libc.abilist
 +++ b/sysdeps/unix/sysv/linux/arm/libc.abilist
 @@ -93,8 +93,6 @@ GLIBC_2.24 quick_exit F
- GLIBC_2.25 GLIBC_2.25 A
- GLIBC_2.25 __explicit_bzero_chk F
- GLIBC_2.25 explicit_bzero F
--GLIBC_2.25 getentropy F
--GLIBC_2.25 getrandom F
- GLIBC_2.25 strfromd F
- GLIBC_2.25 strfromf F
- GLIBC_2.25 strfroml F
-diff --git a/sysdeps/unix/sysv/linux/getentropy.c b/sysdeps/unix/sysv/linux/getentropy.c
-deleted file mode 100644
-index 561f8f4..0000000
---- a/sysdeps/unix/sysv/linux/getentropy.c
-+++ /dev/null
-@@ -1,73 +0,0 @@
--/* Implementation of getentropy based on the getrandom system call.
--   Copyright (C) 2016-2018 Free Software Foundation, Inc.
--   This file is part of the GNU C Library.
--
--   The GNU C Library is free software; you can redistribute it and/or
--   modify it under the terms of the GNU Lesser General Public
--   License as published by the Free Software Foundation; either
--   version 2.1 of the License, or (at your option) any later version.
--
--   The GNU C Library is distributed in the hope that it will be useful,
--   but WITHOUT ANY WARRANTY; without even the implied warranty of
--   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
--   Lesser General Public License for more details.
--
--   You should have received a copy of the GNU Lesser General Public
--   License along with the GNU C Library; if not, see
--   <http://www.gnu.org/licenses/>.  */
--
--#include <sys/random.h>
--#include <assert.h>
--#include <errno.h>
--#include <unistd.h>
--
--#ifdef __NR_getrandom
--/* Write LENGTH bytes of randomness starting at BUFFER.  Return 0 on
--   success and -1 on failure.  */
--int
--getentropy (void *buffer, size_t length)
--{
--  /* The interface is documented to return EIO for buffer lengths
--     longer than 256 bytes.  */
--  if (length > 256)
--    {
--      __set_errno (EIO);
--      return -1;
--    }
--
--  /* Try to fill the buffer completely.  Even with the 256 byte limit
--     above, we might still receive an EINTR error (when blocking
--     during boot).  */
--  void *end = buffer + length;
--  while (buffer < end)
--    {
--      /* NB: No cancellation point.  */
--      ssize_t bytes = INLINE_SYSCALL_CALL (getrandom, buffer, end - buffer, 0);
--      if (bytes < 0)
--        {
--          if (errno == EINTR)
--            /* Try again if interrupted by a signal.  */
--            continue;
--          else
--            return -1;
--        }
--      if (bytes == 0)
--        {
--          /* No more bytes available.  This should not happen under
--             normal circumstances.  */
--          __set_errno (EIO);
--          return -1;
--        }
--      /* Try again in case of a short read.  */
--      buffer += bytes;
--    }
--  return 0;
--}
--#else
--int
--getentropy (void *buffer, size_t length)
--{
--  __set_errno (ENOSYS);
--  return -1;
--}
--#endif
-diff --git a/sysdeps/unix/sysv/linux/getrandom.c b/sysdeps/unix/sysv/linux/getrandom.c
-deleted file mode 100644
-index 435b037..0000000
---- a/sysdeps/unix/sysv/linux/getrandom.c
-+++ /dev/null
-@@ -1,43 +0,0 @@
--/* Implementation of the getrandom system call.
--   Copyright (C) 2016-2018 Free Software Foundation, Inc.
--   This file is part of the GNU C Library.
--
--   The GNU C Library is free software; you can redistribute it and/or
--   modify it under the terms of the GNU Lesser General Public
--   License as published by the Free Software Foundation; either
--   version 2.1 of the License, or (at your option) any later version.
--
--   The GNU C Library is distributed in the hope that it will be useful,
--   but WITHOUT ANY WARRANTY; without even the implied warranty of
--   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
--   Lesser General Public License for more details.
--
--   You should have received a copy of the GNU Lesser General Public
--   License along with the GNU C Library; if not, see
--   <http://www.gnu.org/licenses/>.  */
--
--#include <sys/random.h>
--#include <errno.h>
--#include <unistd.h>
--#include <sysdep-cancel.h>
--
--#ifdef __NR_getrandom
--/* Write up to LENGTH bytes of randomness starting at BUFFER.
--   Return the number of bytes written, or -1 on error.  */
--ssize_t
--getrandom (void *buffer, size_t length, unsigned int flags)
--{
--  return SYSCALL_CANCEL (getrandom, buffer, length, flags);
--}
--#else
--/* Always provide a definition, even if the kernel headers lack the
--   system call number. */
--ssize_t
--getrandom (void *buffer, size_t length, unsigned int flags)
--{
--  /* Ideally, we would add a cancellation point here, but we currently
--     cannot do so inside libc.  */
--  __set_errno (ENOSYS);
--  return -1;
--}
--#endif
-diff --git a/sysdeps/unix/sysv/linux/hppa/libc.abilist b/sysdeps/unix/sysv/linux/hppa/libc.abilist
-index 2360130..0a5a5b0 100644
---- a/sysdeps/unix/sysv/linux/hppa/libc.abilist
-+++ b/sysdeps/unix/sysv/linux/hppa/libc.abilist
-@@ -1857,8 +1857,6 @@ GLIBC_2.24 quick_exit F
- GLIBC_2.25 GLIBC_2.25 A
- GLIBC_2.25 __explicit_bzero_chk F
- GLIBC_2.25 explicit_bzero F
--GLIBC_2.25 getentropy F
--GLIBC_2.25 getrandom F
- GLIBC_2.25 strfromd F
- GLIBC_2.25 strfromf F
- GLIBC_2.25 strfroml F
-diff --git a/sysdeps/unix/sysv/linux/i386/libc.abilist b/sysdeps/unix/sysv/linux/i386/libc.abilist
-index 39c993f..93f39b5 100644
---- a/sysdeps/unix/sysv/linux/i386/libc.abilist
-+++ b/sysdeps/unix/sysv/linux/i386/libc.abilist
-@@ -2015,8 +2015,6 @@ GLIBC_2.24 quick_exit F
- GLIBC_2.25 GLIBC_2.25 A
- GLIBC_2.25 __explicit_bzero_chk F
- GLIBC_2.25 explicit_bzero F
--GLIBC_2.25 getentropy F
--GLIBC_2.25 getrandom F
- GLIBC_2.25 strfromd F
- GLIBC_2.25 strfromf F
- GLIBC_2.25 strfroml F
-diff --git a/sysdeps/unix/sysv/linux/ia64/libc.abilist b/sysdeps/unix/sysv/linux/ia64/libc.abilist
-index 68496aa..712ef0a 100644
---- a/sysdeps/unix/sysv/linux/ia64/libc.abilist
-+++ b/sysdeps/unix/sysv/linux/ia64/libc.abilist
-@@ -1879,8 +1879,6 @@ GLIBC_2.24 quick_exit F
  GLIBC_2.25 GLIBC_2.25 A
  GLIBC_2.25 __explicit_bzero_chk F
  GLIBC_2.25 explicit_bzero F
