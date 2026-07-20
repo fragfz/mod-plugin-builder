@@ -63,7 +63,10 @@ fi
 #######################################################################################################################
 # check for custom and generic builds
 
-if [[ "${PLATFORM}" = "darkglass-anagram-gcc15"* ]]; then
+if [[ "${PLATFORM}" = "moddwarf-new-gcc15"* ]]; then
+  TOOLCHAIN_PLATFORM="moddwarf-new-gcc15"
+  BR2_PLATFORM="${PLATFORM}"
+elif [[ "${PLATFORM}" = "darkglass-anagram-gcc15"* ]]; then
   TOOLCHAIN_PLATFORM="darkglass-anagram-gcc15"
   BR2_PLATFORM="${PLATFORM}"
 elif [[ "${PLATFORM}" == "generic-aarch64-"* ]] || [[ "${PLATFORM}" = "darkglass-anagram"* ]]; then
@@ -109,6 +112,11 @@ case "${TOOLCHAIN_PLATFORM}" in
   "modduo-new"|"modduox-new"|"moddwarf-new")
     BUILDROOT_VERSION=buildroot-2016.02
     CT_NG_VERSION=crosstool-ng-1.25.0
+  ;;
+  # new moddwarf target with gcc 15: ct-ng 1.28 with gcc 15 + glibc 2.27
+  "moddwarf-new-gcc15")
+    BUILDROOT_VERSION=buildroot-2016.02
+    CT_NG_VERSION=crosstool-ng-1.28.0
   ;;
   # generic targets: ct-ng 1.25 with gcc 9 + glibc 2.34
   "generic-aarch64"|"generic-x86_64")
