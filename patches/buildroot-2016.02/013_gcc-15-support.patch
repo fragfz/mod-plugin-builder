@@ -1,0 +1,8 @@
+--- a/package/pkg-generic.mk
++++ b/package/pkg-generic.mk
+@@ -1,4 +1,4 @@
+ # Check external toolchain gcc version
+-TOOLCHAIN_EXTERNAL_GCC_VERSIONS := 4.3 4.4 4.5 4.6 4.7 4.8 4.9 5 6 7 8 9
++TOOLCHAIN_EXTERNAL_GCC_VERSIONS := 4.3 4.4 4.5 4.6 4.7 4.8 4.9 5 6 7 8 9 10 11 12 13 14 15
+ 
+ # Check external toolchain libc version
