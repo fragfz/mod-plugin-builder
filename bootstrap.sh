@@ -176,6 +176,7 @@ if [ ! -d ${BUILD_DIR}/${BUILDROOT_VERSION} ]; then
       patch -d ${BUILD_DIR}/${BUILDROOT_VERSION} -p1 -i ${SOURCE_DIR}/patches/${BUILDROOT_VERSION}/010_fixpkgconfdownload.patch
       patch -d ${BUILD_DIR}/${BUILDROOT_VERSION} -p1 -i ${SOURCE_DIR}/patches/${BUILDROOT_VERSION}/011_fix-qt5-build.patch
       patch -d ${BUILD_DIR}/${BUILDROOT_VERSION} -p1 -i ${SOURCE_DIR}/patches/${BUILDROOT_VERSION}/012_linux-kernel-6.1.patch
+      patch -d ${BUILD_DIR}/${BUILDROOT_VERSION} -p1 -i ${SOURCE_DIR}/patches/${BUILDROOT_VERSION}/013_gcc-15-support.patch
     ;;
 
     "buildroot-2023.11.3")
