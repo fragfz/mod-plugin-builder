@@ -24,7 +24,7 @@ index 7c363a6..578f013 100644
  	   ucontext.h sys/ucontext.h				      \
  	   alloca.h fmtmsg.h						      \
 -	   bits/stdlib-bsearch.h sys/random.h bits/stdint-intn.h	      \
-+	   bits/stdlib-bsearch.h bits/stdint-intn.h		      \
++	   bits/stdlib-bsearch.h bits/stdint-intn.h	      \
  	   bits/stdint-uintn.h
  
  routines	:=							      \
