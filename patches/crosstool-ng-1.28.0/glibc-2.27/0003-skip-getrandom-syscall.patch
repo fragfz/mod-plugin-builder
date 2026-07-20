@@ -1,0 +1,12 @@
+diff --git a/sysdeps/unix/sysv/linux/aarch64/sysdep.h b/sysdeps/unix/sysv/linux/aarch64/sysdep.h
+index 4088f677d3..4dc4484ce5 100644
+--- a/sysdeps/unix/sysv/linux/aarch64/sysdep.h
++++ b/sysdeps/unix/sysv/linux/aarch64/sysdep.h
+@@ -179,6 +179,7 @@
+ # define HAVE_CLONE3_WRAPPER 1
+ # define HAVE_CANCELLABLE_SYSCALL_WITH_7_ARGS 1
+ # define HAVE_SETXID_SYSCALL 1
++# define __ASSUME_GETRANDOM_SYSCALL 0
+ 
+ /* List of system calls which are supported as vsyscalls.  */
+ # define HAVE_CLOCK_GETRES64_VSYSCALL	1

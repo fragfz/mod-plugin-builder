@@ -1,0 +1,13 @@
+diff --git a/sysdeps/aarch64/multiarch/memset_generic.S b/sysdeps/aarch64/multiarch/memset_generic.S
+index 9a1cc70ed8..4f2e7b5067 100644
+--- a/sysdeps/aarch64/multiarch/memset_generic.S
++++ b/sysdeps/aarch64/multiarch/memset_generic.S
+@@ -35,7 +35,7 @@ ENTRY (__memset_generic)
+ 	bic	dst, dstin, 15
+ 	ands	tmp1, count, 15
+ 	b.eq	1f
+-	cmp	count, 96
++	cmp	count, 48
+ 	b.hi	2f
+ 
+ /* Set 0..15 bytes.  */

@@ -18,9 +18,12 @@ Goals:
 Added:
 - `toolchain/moddwarf-new-gcc15.config`
 - `plugins-dep/configs/moddwarf-new-gcc15_defconfig`
+- `patches/crosstool-ng-1.28.0/glibc-2.27/0003-skip-getrandom-syscall.patch`
+- `patches/crosstool-ng-1.28.0/glibc-2.27-dwarf/0004-non-optimized-memset.patch`
 
 Updated:
 - `.common`
+- `bootstrap.sh`
 
 ## Current toolchain strategy
 
@@ -53,6 +56,17 @@ To match the historical static-toolchain approach where appropriate, linker flag
 
 This keeps `glibc` dynamic while statically linking the GCC runtime pieces.
 
+## ct-ng 1.28 + glibc 2.27 patch integration
+
+The original `moddwarf-new` target under ct-ng 1.25.0 relied on:
+- a glibc 2.27 getrandom syscall compatibility patch
+- a Dwarf-specific memset patch
+
+Those patches were not initially wired into the ct-ng 1.28.0 bootstrap path.
+They have now been carried forward for `moddwarf-new-gcc15` by adding:
+- generic glibc 2.27 patch copy logic for ct-ng 1.28.0
+- Dwarf-specific glibc 2.27 patch copy logic for `moddwarf-new-gcc15`
+
 ## Compatibility notes
 
 This target is intended to remain compatible with MOD Dwarf New by preserving:
@@ -72,7 +86,7 @@ Further validation is still required for:
 Build the target with:
 
 ```bash
-make moddwarf-new-gcc15
+./bootstrap.sh moddwarf-new-gcc15
 ```
 
 ## Notes
